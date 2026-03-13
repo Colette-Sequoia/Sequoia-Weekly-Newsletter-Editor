@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Sequoia Newsletter Editor</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',Arial,sans-serif; background:#edf0f4; color:#163B4F; }
+
+/* HOW TO USE BANNER */
+.how-to-use {
+  background:#0f4c2a; color:#fff;
+  padding:10px 24px;
+  font-size:12px;
+  display:flex; align-items:center; gap:20px;
+  flex-wrap:wrap;
+}
+.how-to-use strong { color:#86efac; font-size:13px; }
+.steps { display:flex; gap:16px; flex-wrap:wrap; }
+.step { display:flex; align-items:center; gap:6px; }
+.step-num {
+  background:#16a34a; color:#fff;
+  width:18px; height:18px; border-radius:50%;
+  font-size:10px; font-weight:700;
+  display:flex; align-items:center; justify-content:center;
+  flex-shrink:0;
+}
+.mailchimp-warn {
+  background:#7f1d1d; color:#fca5a5;
+  padding:3px 10px; border-radius:3px;
+  font-size:11px; font-weight:600;
+  margin-left:auto;
+}
+
+.app { display:flex; height:calc(100vh - 44px); overflow:hidden; }
+
+/* SIDEBAR */
+.sidebar {
+  width:380px; flex-shrink:0;
+  background:#163B4F; color:#fff;
+  display:flex; flex-direction:column;
+  overflow:hidden;
+}
+.sidebar-header {
+  padding:16px 20px 12px;
+  border-bottom:1px solid rgba(255,255,255,0.1);
+  flex-shrink:0;
+}
+.sidebar-header h1 { font-size:15px; font-weight:700; }
+.sidebar-header p { font-size:11px; color:rgba(255,255,255,0.5); margin-top:2px; }
+
+.sidebar-tabs {
+  display:flex; border-bottom:1px solid rgba(255,255,255,0.1);
+  flex-shrink:0;
+}
+.tab-btn {
+  flex:1; padding:9px 6px; font-size:11px; font-weight:600;
+  background:none; border:none; color:rgba(255,255,255,0.45);
+  cursor:pointer; letter-spacing:0.5px; text-transform:uppercase;
+  border-bottom:2px solid transparent; transition:all 0.15s;
+}
+.tab-btn.active { color:#fff; border-bottom-color:#60a5fa; }
+
+.sidebar-body { flex:1; overflow-y:auto; padding:16px 18px 20px; }
+.sidebar-body::-webkit-scrollbar { width:4px; }
+.sidebar-body::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.2); border-radius:2px; }
+
+.field-section-title {
+  font-size:10px; font-weight:700; letter-spacing:1.5px;
+  text-transform:uppercase; color:rgba(255,255,255,0.4);
+  padding:10px 0 8px; border-top:1px solid rgba(255,255,255,0.08);
+  margin-top:4px;
+}
+.field-section-title:first-child { border-top:none; padding-top:0; }
+
+.field-row {
+  display:flex; align-items:center; gap:8px; margin-bottom:7px;
+}
+.field-row label {
+  font-size:11px; color:rgba(255,255,255,0.7);
+  width:130px; flex-shrink:0;
+}
+input[type=number] {
+  background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.15);
+  color:#fff; border-radius:4px; font-size:12px;
+  padding:5px 7px; width:65px; text-align:right;
+  font-family:inherit;
+}
+input[type=number]:focus { outline:none; border-color:#60a5fa; background:rgba(255,255,255,0.15); }
+input[type=text], textarea {
+  background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.15);
+  color:#fff; border-radius:4px; font-size:12px;
+  padding:5px 7px; width:100%; font-family:inherit; line-height:1.4;
+}
+input[type=text]:focus, textarea:focus { outline:none; border-color:#60a5fa; }
+textarea { resize:vertical; min-height:68px; }
+::placeholder { color:rgba(255,255,255,0.25); }
+
+.val-badge {
+  font-size:10px; font-weight:700; padding:2px 6px; border-radius:3px;
+  min-width:40px; text-align:center; flex-shrink:0;
+}
+.val-pos { background:rgba(46,125,50,0.45); color:#86efac; }
+.val-neg { background:rgba(59,100,165,0.5); color:#90b8f8; }
+.val-zero { background:rgba(255,255,255,0.1); color:rgba(255,255,255,0.4); }
+
+.story-card {
+  background:rgba(255,255,255,0.07); border-radius:5px;
+  padding:11px; margin-bottom:10px;
+}
+.story-card-num {
+  font-size:10px; font-weight:700; color:rgba(255,255,255,0.5);
+  letter-spacing:0.5px; margin-bottom:8px;
+  text-transform:uppercase;
+}
+.story-field-label {
+  font-size:10px; font-weight:600; color:rgba(255,255,255,0.5);
+  letter-spacing:0.5px; text-transform:uppercase;
+  display:block; margin-bottom:4px; margin-top:8px;
+}
+.story-field-label:first-of-type { margin-top:0; }
+
+/* ACTIONS */
+.sidebar-actions {
+  padding:12px 18px; border-top:1px solid rgba(255,255,255,0.1);
+  display:flex; gap:8px; flex-shrink:0;
+}
+.btn-copy {
+  flex:1; padding:10px; background:#2563eb; border:none;
+  color:#fff; font-size:12px; font-weight:700; border-radius:5px;
+  cursor:pointer; transition:background 0.15s;
+}
+.btn-copy:hover { background:#1d4ed8; }
+.btn-copy.ok { background:#16a34a; }
+.btn-dl {
+  padding:10px 14px; background:rgba(255,255,255,0.1);
+  border:1px solid rgba(255,255,255,0.2);
+  color:#fff; font-size:12px; font-weight:600; border-radius:5px;
+  cursor:pointer; transition:background 0.15s;
+}
+.btn-dl:hover { background:rgba(255,255,255,0.18); }
+
+/* PREVIEW */
+.preview-panel {
+  flex:1; overflow:auto; background:#dce3ec;
+  display:flex; flex-direction:column;
+}
+.preview-bar {
+  background:#fff; border-bottom:1px solid #e2e8f0;
+  padding:8px 20px; display:flex; align-items:center; gap:8px;
+  flex-shrink:0; font-size:12px; color:#64748b;
+}
+.preview-bar strong { color:#1a2535; }
+.live-dot { width:8px; height:8px; border-radius:50%; background:#22c55e; }
+.preview-scroll { flex:1; padding:20px; display:flex; justify-content:center; overflow:auto; }
+.preview-scroll iframe {
+  width:680px; min-height:900px; border:none; background:#fff;
+  box-shadow:0 4px 24px rgba(0,0,0,0.15); border-radius:2px;
+}
+</style>
+</head>
+<body>
+
+<!-- HOW TO USE BANNER -->
+<div class="how-to-use">
+  <strong>⚡ How to use this tool:</strong>
+  <div class="steps">
+    <div class="step"><span class="step-num">1</span> Edit values &amp; stories on the left</div>
+    <div class="step"><span class="step-num">2</span> Preview updates live on the right</div>
+    <div class="step"><span class="step-num">3</span> Click <strong style="color:#86efac">"Copy HTML"</strong></div>
+    <div class="step"><span class="step-num">4</span> Paste into Mailchimp's <strong style="color:#86efac">code editor</strong></div>
+  </div>
+  <span class="mailchimp-warn">⚠ Do NOT upload this file to Mailchimp — only paste the copied HTML</span>
+</div>
+
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <h1>📊 Sequoia Newsletter Editor</h1>
+      <p>Fill in this week's data → copy HTML → paste into Mailchimp</p>
+    </div>
+
+    <div class="sidebar-tabs">
+      <button class="tab-btn active" id="tab-chart-btn" onclick="showTab('chart')">📈 Chart</button>
+      <button class="tab-btn" id="tab-stories-btn" onclick="showTab('stories')">📰 Stories</button>
+    </div>
+
+    <!-- CHART TAB -->
+    <div class="sidebar-body" id="tab-chart">
+      <div class="field-section-title">Main Market Index Values (%)</div>
+      <div id="index-fields"></div>
+    </div>
+
+    <!-- STORIES TAB -->
+    <div class="sidebar-body" id="tab-stories" style="display:none;">
+      <div id="story-fields"></div>
+    </div>
+
+    <div class="sidebar-actions">
+      <button class="btn-copy" id="copyBtn" onclick="copyHTML()">📋 Copy HTML for Mailchimp</button>
+      <button class="btn-dl" onclick="downloadHTML()" title="Download as .html file">⬇</button>
+    </div>
+  </div>
+
+  <!-- PREVIEW -->
+  <div class="preview-panel">
+    <div class="preview-bar">
+      <div class="live-dot"></div>
+      <strong>Live Preview</strong> — updates as you type
+    </div>
+    <div class="preview-scroll">
+      <iframe id="previewFrame"></iframe>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ── DATA ─────────────────────────────────────────────────────────────────────
+var indices = [
+  { label:'SA Equities',        value:-5  },
+  { label:'SA Property',        value:-5  },
+  { label:'SA Bonds',           value:-1  },
+  { label:'SA Cash',            value: 1  },
+  { label:'Developed Equities', value:-3  },
+  { label:'Emerging Equities',  value:-3  },
+  { label:'Global Property',    value:-4  },
+  { label:'Global Bonds',       value:-1  },
+  { label:'US Cash',            value: 1  },
+];
+
+var stories = [
+  { page:1, title:'Middle East Conflict Triggers Oil Shock and Market Turmoil',
+    body:'Escalating geopolitical tensions have pushed Brent crude oil prices above $100 a barrel, sparking significant volatility and a flight from risk in global markets. The conflict has rattled investors, wiping out over R2 trillion on the JSE due to fears of stagflation and prolonged economic uncertainty. For oil-importing countries like South Africa, the surge threatens to cause substantial fuel price increases and accelerate consumer price inflation.' },
+  { page:1, title:'SA Economy Posts Fastest Growth in Three Years',
+    body:"South Africa's economy expanded by 1.1% in 2025, the quickest pace of growth seen in three years. The encouraging GDP figure was driven by strong performances in agriculture, finance, and trade sectors. This positive data offers a sign of recovery and raises hopes for more sustained economic momentum moving forward." },
+  { page:1, title:"Oil Price Surge Clouds South Africa's Interest Rate Path",
+    body:"The sharp rise in global oil prices is complicating the South African Reserve Bank's monetary policy, making previously expected interest rate cuts less certain. Economists suggest the SARB may now adopt a wait-and-see approach, pausing any rate movements amid the heightened global uncertainty." },
+  { page:2, title:"Absa's Executive Pay in Spotlight with R98.5m Buyout Award",
+    body:"Absa Group is facing scrutiny over a R98.5 million buyout award made to a new executive who joined from a competitor. The payment contributed to a total compensation package exceeding R148 million for 2025, raising questions about corporate governance and remuneration practices within South Africa's banking sector." },
+  { page:2, title:'African Bank CEO Kennedy Bungane Resigns Abruptly',
+    body:"The sudden resignation of CEO Kennedy Bungane has created leadership uncertainty at African Bank. The bank has named an interim CEO while beginning its search for a permanent successor. Bungane's unexpected departure occurs at a pivotal moment as the bank continues to implement its turnaround strategy." },
+  { page:2, title:"Gauteng's R179bn Budget Strained by E-toll Debt",
+    body:"The Gauteng provincial government's finances are under considerable pressure after absorbing R20 billion in e-toll debt. This significant obligation is straining the province's R179 billion budget and limiting its capacity to fund other essential public services." },
+];
+
+// ── BUILD FIELDS ──────────────────────────────────────────────────────────────
+function buildIndexFields() {
+  var c = document.getElementById('index-fields');
+  c.innerHTML = '';
+  for (var i = 0; i < indices.length; i++) {
+    (function(idx) {
+      var v = indices[idx].value;
+      var row = document.createElement('div');
+      row.className = 'field-row';
+      var cls = v > 0 ? 'val-pos' : v < 0 ? 'val-neg' : 'val-zero';
+      var sign = v > 0 ? '+' : '';
+      row.innerHTML =
+        '<label>' + indices[idx].label + '</label>' +
+        '<input type="number" step="0.1" value="' + v + '" id="idx-input-' + idx + '" />' +
+        '<span class="val-badge ' + cls + '" id="idx-badge-' + idx + '">' + sign + v + '%</span>';
+      c.appendChild(row);
+
+      row.querySelector('input').addEventListener('input', function() {
+        var val = parseFloat(this.value) || 0;
+        indices[idx].value = val;
+        var badge = document.getElementById('idx-badge-' + idx);
+        badge.textContent = (val > 0 ? '+' : '') + val + '%';
+        badge.className = 'val-badge ' + (val > 0 ? 'val-pos' : val < 0 ? 'val-neg' : 'val-zero');
+        scheduleRefresh();
+      });
+    })(i);
+  }
+}
+
+function buildStoryFields() {
+  var c = document.getElementById('story-fields');
+  c.innerHTML = '';
+  var page = 0;
+  for (var i = 0; i < stories.length; i++) {
+    if (stories[i].page !== page) {
+      page = stories[i].page;
+      var div = document.createElement('div');
+      div.className = 'field-section-title';
+      div.textContent = page === 1 ? 'Page 1 — Top Stories (left column)' : 'Page 2 — More Stories (bottom)';
+      c.appendChild(div);
+    }
+    (function(idx) {
+      var card = document.createElement('div');
+      card.className = 'story-card';
+      card.innerHTML =
+        '<div class="story-card-num">Story ' + (idx+1) + '</div>' +
+        '<span class="story-field-label">Headline</span>' +
+        '<input type="text" id="s-title-' + idx + '" value="' + esc(stories[idx].title) + '" />' +
+        '<span class="story-field-label">Body text</span>' +
+        '<textarea id="s-body-' + idx + '" rows="4">' + esc(stories[idx].body) + '</textarea>';
+      c.appendChild(card);
+
+      card.querySelector('#s-title-' + idx).addEventListener('input', function() {
+        stories[idx].title = this.value; scheduleRefresh();
+      });
+      card.querySelector('#s-body-' + idx).addEventListener('input', function() {
+        stories[idx].body = this.value; scheduleRefresh();
+      });
+    })(i);
+  }
+}
+
+function esc(str) {
+  return String(str)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+}
+
+// ── TABS ──────────────────────────────────────────────────────────────────────
+function showTab(name) {
+  document.getElementById('tab-chart').style.display   = name === 'chart'   ? 'block' : 'none';
+  document.getElementById('tab-stories').style.display = name === 'stories' ? 'block' : 'none';
+  document.getElementById('tab-chart-btn').classList.toggle('active',   name === 'chart');
+  document.getElementById('tab-stories-btn').classList.toggle('active', name === 'stories');
+}
+
+// ── GENERATE NEWSLETTER HTML ──────────────────────────────────────────────────
+function generateHTML() {
+  var F     = "'Helvetica Neue',Helvetica,Arial,sans-serif";
+  var NAVY  = '#163B4F';
+  var STEEL = '#455b70';
+
+  // ── COLUMN WIDTHS (must add to 680) ────────────────────────────────────────
+  var LEFT_W  = 195;   // navy sidebar
+  var RIGHT_W = 485;   // stories column
+  // Left inner width after 12px padding each side = 171px available for chart
+
+  // ── CHART ──────────────────────────────────────────────────────────────────
+  var BAR_W     = 12;
+  var COL_W     = 14;
+  var YAXIS_W   = 22;
+  var BAR_MAX_H = 140;  // tall enough for each integer tick to get ~14-28px
+  var LBL_H     = 28;
+
+  var values = indices.map(function(x){ return x.value; });
+  var maxPos = Math.max.apply(null, [0].concat(values.filter(function(v){ return v > 0; })));
+  var maxNeg = Math.abs(Math.min.apply(null, [0].concat(values.filter(function(v){ return v < 0; }))));
+  var range  = (maxPos + maxNeg) || 1;
+  var POS_H  = maxPos > 0 ? Math.round((maxPos / range) * BAR_MAX_H) : 6;
+  var NEG_H  = maxNeg > 0 ? Math.round((maxNeg / range) * BAR_MAX_H) : 6;
+
+  // White spacer
+  function sp(w, h) {
+    if (h <= 0) return '';
+    return '<tr><td width="' + w + '" height="' + h + '" bgcolor="#ffffff" style="width:' + w + 'px;height:' + h + 'px;line-height:' + h + 'px;font-size:0;background-color:#ffffff;overflow:hidden;mso-line-height-rule:exactly;">&nbsp;</td></tr>';
+  }
+  // Coloured bar row
+  function br(w, h, col) {
+    if (h <= 0) return '';
+    return '<tr><td width="' + w + '" height="' + h + '" bgcolor="' + col + '" style="width:' + w + 'px;height:' + h + 'px;line-height:' + h + 'px;font-size:0;background-color:' + col + ';overflow:hidden;mso-line-height-rule:exactly;">&nbsp;</td></tr>';
+  }
+  // Text label — hardcoded black, Arial, no inheritance
+  function tx(w, h, content, fsize, talign) {
+    var hpx = Math.max(h, 1);
+    return '<tr><td width="' + w + '" height="' + hpx + '" bgcolor="#ffffff" style="width:' + w + 'px;height:' + hpx + 'px;line-height:' + hpx + 'px;font-size:' + fsize + 'px;color:#000000;background-color:#ffffff;text-align:' + (talign||'center') + ';font-family:Arial,Helvetica,sans-serif;white-space:nowrap;overflow:hidden;mso-line-height-rule:exactly;">' + content + '</td></tr>';
+  }
+
+  // ── Y-AXIS: one label per integer tick ────────────────────────────────────
+  var yHTML = '';
+
+  if (maxPos > 0) {
+    for (var k = maxPos; k >= 1; k--) {
+      var zt  = Math.round(POS_H * (maxPos - k)     / maxPos);
+      var zb  = Math.round(POS_H * (maxPos - k + 1) / maxPos);
+      var zh  = zb - zt;  // zone height for this integer
+      var lh  = Math.min(10, zh);
+      var sh  = zh - lh;
+      if (sh > 0) yHTML += sp(YAXIS_W, sh);  // space above, pushing label to bottom
+      yHTML += tx(YAXIS_W, lh, k, 7, 'right');
+    }
+  } else {
+    yHTML += sp(YAXIS_W, POS_H);
+  }
+
+  yHTML += tx(YAXIS_W, 8, '0', 7, 'right');  // 0 label at zero line
+
+  if (maxNeg > 0) {
+    for (var n = 1; n <= maxNeg; n++) {
+      var zt2 = Math.round(NEG_H * (n - 1) / maxNeg);
+      var zb2 = Math.round(NEG_H * n       / maxNeg);
+      var zh2 = zb2 - zt2;
+      var lh2 = Math.min(10, zh2);
+      var sh2 = zh2 - lh2;
+      yHTML += tx(YAXIS_W, lh2, '-' + n, 7, 'right');  // label at top of zone
+      if (sh2 > 0) yHTML += sp(YAXIS_W, sh2);
+    }
+  } else {
+    yHTML += sp(YAXIS_W, NEG_H);
+  }
+
+  yHTML += sp(YAXIS_W, LBL_H);
+
+  var yAxisCol =
+    '<td width="' + YAXIS_W + '" bgcolor="#ffffff" style="width:' + YAXIS_W + 'px;background-color:#ffffff;padding:0 3px 0 0;vertical-align:top;">' +
+      '<table width="' + YAXIS_W + '" cellpadding="0" cellspacing="0" border="0" bgcolor="#ffffff" style="width:' + YAXIS_W + 'px;background-color:#ffffff;">' +
+        yHTML +
+      '</table>' +
+    '</td>';
+
+  // ── BAR COLUMNS ──────────────────────────────────────────────────────────
+  var barCols = yAxisCol;
+
+  for (var i = 0; i < indices.length; i++) {
+    var v     = indices[i].value;
+    var isPos = v >= 0;
+    var barPx = v === 0 ? 0 : Math.max(3, Math.round((Math.abs(v) / range) * BAR_MAX_H));
+    var lbl   = indices[i].label
+      .replace('Equities','Eq.').replace('Property','Prop.')
+      .replace('Developed','Dev.').replace('Emerging','Em.').replace('Global','Gl.');
+    var lblParts = lbl.split(' ');
+    var lblHtml = lblParts.length > 1 ? lblParts[0] + '<br>' + lblParts[1] : lbl;
+
+    var posSpacer = Math.max(0, POS_H - (isPos  ? barPx : 0));
+    var negSpacer = Math.max(0, NEG_H - (!isPos ? barPx : 0));
+    var zeroColor = isPos ? '#2e7d32' : NAVY;  // zero line matches the bar colour
+
+    barCols +=
+      '<td width="' + COL_W + '" bgcolor="#ffffff" style="width:' + COL_W + 'px;background-color:#ffffff;padding:0 1px;vertical-align:top;">' +
+        '<table width="' + BAR_W + '" cellpadding="0" cellspacing="0" border="0" bgcolor="#ffffff" style="width:' + BAR_W + 'px;background-color:#ffffff;">' +
+          sp(BAR_W, posSpacer) +
+          (isPos ? br(BAR_W, barPx, '#2e7d32') : '') +
+          '<tr><td width="' + BAR_W + '" height="1" bgcolor="' + zeroColor + '" style="width:' + BAR_W + 'px;height:1px;line-height:1px;font-size:0;background-color:' + zeroColor + ';overflow:hidden;mso-line-height-rule:exactly;">&nbsp;</td></tr>' +
+          (!isPos ? br(BAR_W, barPx, NAVY) : '') +
+          sp(BAR_W, negSpacer) +
+          '<tr><td width="' + BAR_W + '" height="' + LBL_H + '" bgcolor="#ffffff" style="width:' + BAR_W + 'px;height:' + LBL_H + 'px;line-height:normal;font-size:5px;color:#666666;background-color:#ffffff;text-align:center;font-family:Arial,Helvetica,sans-serif;vertical-align:top;padding:1px 0 0;mso-line-height-rule:exactly;">' + lblHtml + '</td></tr>' +
+        '</table>' +
+      '</td>';
+  }
+
+  var CHART_W = YAXIS_W + (indices.length * COL_W);
+  var chartTable =
+    '<table width="' + CHART_W + '" cellpadding="0" cellspacing="0" border="0" bgcolor="#ffffff" style="width:' + CHART_W + 'px;background-color:#ffffff;">' +
+      '<tr valign="top">' + barCols + '</tr>' +
+    '</table>';
+
+
+
+
+
+
+  // ── PAGE 1 STORIES ─────────────────────────────────────────────────────────
+  var p1 = stories.filter(function(s){ return s.page === 1; });
+  var p1Rows = '';
+  for (var j = 0; j < p1.length; j++) {
+    if (j > 0) {
+      p1Rows += '<tr><td height="1" bgcolor="#dde3ea" style="height:1px;background-color:#dde3ea;font-size:1px;line-height:1px;overflow:hidden;padding:0;mso-line-height-rule:exactly;">&nbsp;</td></tr>' +
+                '<tr><td height="14" bgcolor="#ffffff" style="height:14px;background-color:#ffffff;font-size:1px;line-height:14px;padding:0;mso-line-height-rule:exactly;">&nbsp;</td></tr>';
+    }
+    p1Rows +=
+      '<tr><td style="padding:0 0 4px;">' +
+        '<p style="margin:0;font-size:13px;font-weight:bold;color:' + NAVY + ';line-height:1.4;font-family:' + F + ';">' + p1[j].title + '</p>' +
+      '</td></tr>' +
+      '<tr><td style="padding:0 0 14px;">' +
+        '<p style="margin:0;font-size:12px;color:' + STEEL + ';line-height:1.65;font-family:' + F + ';">' + p1[j].body + '</p>' +
+      '</td></tr>';
+  }
+
+  // ── PAGE 2 STORIES ─────────────────────────────────────────────────────────
+  var p2 = stories.filter(function(s){ return s.page === 2; });
+
+  function storyCard(s) {
+    return '<table cellpadding="0" cellspacing="0" border="0" frame="void" rules="none" width="100%" style="border:0;outline:0;">' +
+      '<tr valign="top" bgcolor="#ffffff">' +
+        '<td width="3" bgcolor="' + STEEL + '" style="background-color:' + STEEL + ';width:3px;font-size:0;padding:0;border:0;">&nbsp;</td>' +
+        '<td width="12" bgcolor="#ffffff" style="background-color:#ffffff;width:12px;font-size:0;padding:0;border:0;">&nbsp;</td>' +
+        '<td bgcolor="#ffffff" style="background-color:#ffffff;padding:0 0 10px 0;border:0;">' +
+          '<p style="margin:0 0 4px;font-size:13px;font-weight:bold;color:' + NAVY + ';line-height:1.4;font-family:' + F + ';">' + s.title + '</p>' +
+          '<p style="margin:0;font-size:12px;color:' + STEEL + ';line-height:1.65;font-family:' + F + ';">' + s.body + '</p>' +
+        '</td>' +
+      '</tr>' +
+    '</table>';
+  }
+
+  var p2ExtraRows = '';
+  for (var m = 2; m < p2.length; m++) {
+    p2ExtraRows +=
+      '<tr><td colspan="3" height="14" bgcolor="#ffffff" style="height:14px;background-color:#ffffff;font-size:1px;line-height:14px;padding:0;mso-line-height-rule:exactly;">&nbsp;</td></tr>' +
+      '<tr><td colspan="3" height="1" bgcolor="#dde3ea" style="height:1px;background-color:#dde3ea;font-size:1px;line-height:1px;overflow:hidden;padding:0;mso-line-height-rule:exactly;">&nbsp;</td></tr>' +
+      '<tr bgcolor="#ffffff"><td colspan="3" bgcolor="#ffffff" style="background-color:#ffffff;padding:14px 0 14px;border:0;">' + storyCard(p2[m]) + '</td></tr>';
+  }
+
+  // More Stories: inner width = 680 - (24+24) padding = 632px. Two cols + 20px gap.
+  var p2Col1W = 306;
+  var p2Col2W = 306;
+
+  // ── ASSEMBLE ───────────────────────────────────────────────────────────────
+  return [
+'<!DOCTYPE html>',
+'<html lang="en">',
+'<head><meta charset="UTF-8"/>',
+'<meta name="viewport" content="width=device-width,initial-scale=1.0"/>',
+'<title>Weekly Market Review - Sequoia Investment Solutions</title>',
+'<!--[if mso]><style type="text/css">p{margin:0;mso-para-margin-top:0pt;mso-para-margin-bottom:0pt;}</style><![endif]-->',
+'</head>',
+'<body style="margin:0;padding:0;background-color:#ffffff;">',
+
+// Outer wrapper
+'<table width="680" cellpadding="0" cellspacing="0" border="0" align="center" bgcolor="#ffffff" style="background-color:#ffffff;width:680px;border-collapse:collapse;">',
+
+// ── HEADER ──
+'<tr bgcolor="#ffffff">',
+  '<td colspan="2" bgcolor="#ffffff" style="background-color:#ffffff;padding:20px 24px 16px;">',
+    '<table width="632" cellpadding="0" cellspacing="0" border="0" style="width:632px;"><tr valign="middle">',
+      '<td valign="middle" style="padding:0;">',
+        '<p style="margin:0 0 2px;font-size:9px;font-weight:bold;letter-spacing:3px;text-transform:uppercase;color:' + STEEL + ';font-family:' + F + ';">WEEKLY</p>',
+        '<p style="margin:0;font-size:30px;font-weight:bold;color:' + NAVY + ';line-height:1;font-family:' + F + ';white-space:nowrap;">MARKET REVIEW</p>',
+      '</td>',
+      '<td align="right" valign="middle" style="padding:0;">',
+        '<img src="https://mcusercontent.com/f4fec8259cbd66fbf9a376f71/images/5df544e3-6429-2b91-d514-e2dbfe435d7f.png" alt="Sequoia Investment Solutions" height="50" style="display:block;height:50px;"/>',
+      '</td>',
+    '</tr></table>',
+  '</td>',
+'</tr>',
+
+// Header border
+'<tr><td colspan="2" height="3" bgcolor="' + NAVY + '" style="height:3px;background-color:' + NAVY + ';font-size:0;line-height:0;padding:0;">&nbsp;</td></tr>',
+
+// ── HERO IMAGE — spans full 680px ──
+'<tr bgcolor="#ffffff">',
+  '<td colspan="2" style="padding:0;font-size:0;line-height:0;border:0;">',
+    '<img src="https://mcusercontent.com/f4fec8259cbd66fbf9a376f71/images/28fab494-5401-2cd6-4ab3-01b8cc76daa6.jpg" alt="" width="680" height="auto" style="display:block;width:680px;max-width:680px;height:auto;border:0;"/>',
+  '</td>',
+'</tr>',
+
+// ── TWO-COLUMN BODY ──
+'<tr valign="top" bgcolor="#ffffff">',
+
+  // LEFT COL — full height navy sidebar
+  '<td width="' + LEFT_W + '" valign="top" bgcolor="' + NAVY + '" style="width:' + LEFT_W + 'px;background-color:' + NAVY + ';padding:20px 12px 24px;vertical-align:top;">',
+
+
+        // Single table — no sibling tables = no Outlook white paragraph breaks
+        '<table width="171" cellpadding="0" cellspacing="0" border="0" bgcolor="' + NAVY + '" style="width:171px;background-color:' + NAVY + ';">',
+          // Row 1: heading
+          '<tr><td bgcolor="' + NAVY + '" align="center" style="background-color:' + NAVY + ';padding:0 0 4px;font-size:8px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:#aabfd1;font-family:' + F + ';">MARKETS AT A GLANCE</td></tr>',
+          // Row 2: steel underline bar
+          '<tr><td bgcolor="' + NAVY + '" align="center" style="background-color:' + NAVY + ';padding:0 0 12px;">',
+            '<table width="24" cellpadding="0" cellspacing="0" border="0"><tr><td width="24" height="2" bgcolor="' + STEEL + '" style="width:24px;height:2px;background-color:' + STEEL + ';font-size:0;padding:0;">&nbsp;</td></tr></table>',
+          '</td></tr>',
+          // Row 3: white chart card
+          '<tr><td bgcolor="#ffffff" style="background-color:#ffffff;padding:8px 6px 4px;">',
+            '<p style="margin:0 0 6px;font-size:7px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;color:' + STEEL + ';text-align:center;font-family:' + F + ';">Main Market Indices</p>',
+            chartTable,
+          '</td></tr>',
+          // Row 4: spacer
+          '<tr><td height="12" bgcolor="' + NAVY + '" style="height:12px;background-color:' + NAVY + ';font-size:1px;line-height:12px;mso-line-height-rule:exactly;padding:0;">&nbsp;</td></tr>',
+          // Row 5: download text
+          '<tr><td bgcolor="' + NAVY + '" align="center" style="background-color:' + NAVY + ';padding:0 0 8px;font-size:11px;color:#aabfd1;font-family:' + F + ';text-align:center;">Download the full report</td></tr>',
+          // Row 6: button
+          '<tr><td bgcolor="' + NAVY + '" align="center" style="background-color:' + NAVY + ';padding:0;">',
+            '<table cellpadding="0" cellspacing="0" border="0"><tr><td bgcolor="' + STEEL + '" style="background-color:' + STEEL + ';">',
+              '<a href="https://workdrive.zohoexternal.com/external/091d1c286e4f1b9a89a150666ab4eabc7e62b7f0fd0094ca01910407374f9283" target="_blank" style="display:inline-block;padding:8px 14px;font-size:11px;font-weight:bold;color:#ffffff;text-decoration:none;font-family:' + F + ';white-space:nowrap;">VIEW REPORT &#8594;</a>',
+            '</td></tr></table>',
+          '</td></tr>',
+        '</table>',
+
+  '</td>',
+
+  // RIGHT COL — stories, fills remaining width
+  '<td width="' + RIGHT_W + '" valign="top" bgcolor="#ffffff" style="width:' + RIGHT_W + 'px;background-color:#ffffff;padding:20px 24px 24px;vertical-align:top;">',
+
+    '<p style="margin:0;font-size:8px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:' + STEEL + ';font-family:' + F + ';">TOP STORIES THIS WEEK</p>',
+    '<table width="100%" cellpadding="0" cellspacing="0" border="0">' +
+      '<tr><td colspan="2" height="2" bgcolor="#ffffff" style="height:2px;background-color:#ffffff;font-size:0;line-height:0;padding:0;mso-line-height-rule:exactly;">&nbsp;</td></tr>' +
+      '<tr><td width="24" height="1" bgcolor="' + NAVY + '" style="width:24px;height:1px;font-size:1px;line-height:1px;background-color:' + NAVY + ';mso-line-height-rule:exactly;padding:0;">&nbsp;</td>' +
+      '<td bgcolor="#ffffff" style="background-color:#ffffff;font-size:0;padding:0;">&nbsp;</td></tr>' +
+      '<tr><td colspan="2" height="14" bgcolor="#ffffff" style="height:14px;font-size:14px;line-height:14px;background-color:#ffffff;mso-line-height-rule:exactly;padding:0;">&nbsp;</td></tr>' +
+    '</table>',
+    '<table width="100%" cellpadding="0" cellspacing="0" border="0">' + p1Rows + '</table>',
+
+  '</td>',
+'</tr>',
+
+// ── SECTION DIVIDER ──
+'<tr><td colspan="2" height="1" bgcolor="#dde3ea" style="height:1px;background-color:#dde3ea;font-size:1px;line-height:1px;overflow:hidden;padding:0;mso-line-height-rule:exactly;">&nbsp;</td></tr>',
+
+// ── MORE STORIES ──
+'<tr bgcolor="#ffffff">',
+  '<td colspan="2" bgcolor="#ffffff" style="background-color:#ffffff;padding:22px 24px 28px;">',
+
+    '<p style="margin:0;font-size:8px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:' + STEEL + ';font-family:' + F + ';">MORE STORIES</p>',
+    '<table width="100%" cellpadding="0" cellspacing="0" border="0">' +
+      '<tr><td colspan="2" height="2" bgcolor="#ffffff" style="height:2px;background-color:#ffffff;font-size:0;line-height:0;padding:0;mso-line-height-rule:exactly;">&nbsp;</td></tr>' +
+      '<tr><td width="24" height="1" bgcolor="' + NAVY + '" style="width:24px;height:1px;font-size:1px;line-height:1px;background-color:' + NAVY + ';mso-line-height-rule:exactly;padding:0;">&nbsp;</td>' +
+      '<td bgcolor="#ffffff" style="background-color:#ffffff;font-size:0;padding:0;">&nbsp;</td></tr>' +
+      '<tr><td colspan="2" height="16" bgcolor="#ffffff" style="height:16px;font-size:16px;line-height:16px;background-color:#ffffff;mso-line-height-rule:exactly;padding:0;">&nbsp;</td></tr>' +
+    '</table>',
+
+    '<table width="100%" cellpadding="0" cellspacing="0" border="0">',
+      '<tr valign="top" bgcolor="#ffffff">',
+        '<td width="' + p2Col1W + '" valign="top" bgcolor="#ffffff" style="background-color:#ffffff;width:' + p2Col1W + 'px;vertical-align:top;">' + (p2.length > 0 ? storyCard(p2[0]) : '') + '</td>',
+        '<td width="20" bgcolor="#ffffff" style="width:20px;background-color:#ffffff;font-size:0;padding:0;"></td>',
+        '<td width="' + p2Col2W + '" valign="top" bgcolor="#ffffff" style="background-color:#ffffff;width:' + p2Col2W + 'px;vertical-align:top;">' + (p2.length > 1 ? storyCard(p2[1]) : '') + '</td>',
+      '</tr>',
+      p2ExtraRows,
+    '</table>',
+  '</td>',
+'</tr>',
+
+// ── FOOTER ──
+'<tr bgcolor="' + NAVY + '">',
+  '<td colspan="2" bgcolor="' + NAVY + '" style="background-color:' + NAVY + ';padding:14px 24px;">',
+    '<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr valign="middle">',
+      '<td><p style="margin:0;font-size:10px;color:#7a9db5;font-family:' + F + ';">Sequoia Investment Solutions is an authorised Financial Services Provider, FSP 49393</p></td>',
+      '<td align="right"><p style="margin:0;font-size:10px;color:#4d7a8f;font-family:' + F + ';">Institutional Intelligence. Individual Focus.</p></td>',
+    '</tr></table>',
+  '</td>',
+'</tr>',
+
+'</table>',
+'</body></html>'
+].join('\n');
+}
+
+
+var refreshTimer = null;
+function scheduleRefresh() {
+  clearTimeout(refreshTimer);
+  refreshTimer = setTimeout(refreshPreview, 250);
+}
+
+function refreshPreview() {
+  var frame = document.getElementById('previewFrame');
+  var html = generateHTML();
+  try {
+    var doc = frame.contentDocument || frame.contentWindow.document;
+    doc.open(); doc.write(html); doc.close();
+  } catch(e) {
+    frame.srcdoc = html;
+  }
+}
+
+// ── COPY & DOWNLOAD ───────────────────────────────────────────────────────────
+function copyHTML() {
+  var html = generateHTML();
+  var btn = document.getElementById('copyBtn');
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(html).then(function() {
+      btn.textContent = '✅ Copied! Now paste into Mailchimp';
+      btn.classList.add('ok');
+      setTimeout(function(){ btn.textContent = '📋 Copy HTML for Mailchimp'; btn.classList.remove('ok'); }, 3000);
+    });
+  } else {
+    // Fallback
+    var ta = document.createElement('textarea');
+    ta.value = html;
+    ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    btn.textContent = '✅ Copied!';
+    btn.classList.add('ok');
+    setTimeout(function(){ btn.textContent = '📋 Copy HTML for Mailchimp'; btn.classList.remove('ok'); }, 3000);
+  }
+}
+
+function downloadHTML() {
+  var html = generateHTML();
+  var blob = new Blob([html], {type:'text/html'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'sequoia_market_review.html';
+  a.click();
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+buildIndexFields();
+buildStoryFields();
+refreshPreview();
+</script>
+</body>
+</html>
