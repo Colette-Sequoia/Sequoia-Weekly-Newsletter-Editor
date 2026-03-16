@@ -475,8 +475,14 @@ function generateHTML() {
         '<td width="3" bgcolor="' + STEEL + '" style="background-color:' + STEEL + ';width:3px;font-size:0;padding:0;border:0;">&nbsp;</td>' +
         '<td width="12" bgcolor="#ffffff" style="background-color:#ffffff;width:12px;font-size:0;padding:0;border:0;">&nbsp;</td>' +
         '<td bgcolor="#ffffff" style="background-color:#ffffff;padding:0 0 10px 0;border:0;">' +
-          '<p style="margin:0 0 4px;font-size:13px;font-weight:bold;color:' + NAVY + ';line-height:1.4;font-family:' + F + ';">' + s.title + '</p>' +
-          '<p style="margin:0;font-size:12px;color:' + STEEL + ';line-height:1.65;font-family:' + F + ';text-align:justify;">' + s.body + '</p>' +
+          '<table width="100%" cellpadding="0" cellspacing="0" border="0">' +
+            '<tr><td bgcolor="#ffffff" style="background-color:#ffffff;padding:0 0 4px;">' +
+              '<p style="margin:0;font-size:13px;font-weight:bold;color:' + NAVY + ';line-height:1.4;font-family:' + F + ';">' + s.title + '</p>' +
+            '</td></tr>' +
+            '<tr><td bgcolor="#ffffff" style="background-color:#ffffff;padding:0;">' +
+              '<p style="margin:0;font-size:12px;color:' + STEEL + ';line-height:1.65;font-family:' + F + ';text-align:justify;">' + s.body + '</p>' +
+            '</td></tr>' +
+          '</table>' +
         '</td>' +
       '</tr>' +
     '</table>';
@@ -524,11 +530,11 @@ function generateHTML() {
 '</tr>',
 
 // Header border
-'<tr><td colspan="2" height="3" bgcolor="' + NAVY + '" style="height:3px;background-color:' + NAVY + ';font-size:0;line-height:0;padding:0;">&nbsp;</td></tr>',
+'<tr><td colspan="2" height="3" bgcolor="#ffffff" style="height:3px;background-color:#ffffff;font-size:0;line-height:0;padding:0;">&nbsp;</td></tr>',
 
 // ── HERO IMAGE — spans full 680px ──
 '<tr bgcolor="#ffffff">',
-  '<td colspan="2" style="padding:0;font-size:0;line-height:0;border:0;">',
+  '<td colspan="2" bgcolor="' + NAVY + '" style="background-color:' + NAVY + ';padding:0;font-size:0;line-height:0;border:0;">',
     '<img src="https://mcusercontent.com/f4fec8259cbd66fbf9a376f71/images/28fab494-5401-2cd6-4ab3-01b8cc76daa6.jpg" alt="" width="680" height="auto" style="display:block;width:680px;max-width:680px;height:auto;border:0;"/>',
   '</td>',
 '</tr>',
@@ -570,9 +576,9 @@ function generateHTML() {
   // RIGHT COL — stories, fills remaining width
   '<td width="' + RIGHT_W + '" valign="top" bgcolor="#ffffff" style="width:' + RIGHT_W + 'px;background-color:#ffffff;padding:20px 24px 24px;vertical-align:top;">',
 
-    '<p style="margin:0;font-size:8px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:' + STEEL + ';font-family:' + F + ';">TOP STORIES THIS WEEK</p>',
+    '<p style="margin:0;font-size:15px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:' + STEEL + ';font-family:' + F + ';">TOP STORIES THIS WEEK</p>',
     '<table width="100%" cellpadding="0" cellspacing="0" border="0">' +
-      '<tr><td colspan="2" height="2" bgcolor="#ffffff" style="height:2px;background-color:#ffffff;font-size:0;line-height:0;padding:0;mso-line-height-rule:exactly;">&nbsp;</td></tr>' +
+      '<tr><td colspan="2" height="8" bgcolor="#ffffff" style="height:8px;background-color:#ffffff;font-size:8px;line-height:8px;padding:0;mso-line-height-rule:exactly;">&nbsp;</td></tr>' +
       '<tr><td width="24" height="1" bgcolor="' + NAVY + '" style="width:24px;height:1px;font-size:1px;line-height:1px;background-color:' + NAVY + ';mso-line-height-rule:exactly;padding:0;">&nbsp;</td>' +
       '<td bgcolor="#ffffff" style="background-color:#ffffff;font-size:0;padding:0;">&nbsp;</td></tr>' +
       '<tr><td colspan="2" height="14" bgcolor="#ffffff" style="height:14px;font-size:14px;line-height:14px;background-color:#ffffff;mso-line-height-rule:exactly;padding:0;">&nbsp;</td></tr>' +
@@ -589,9 +595,9 @@ function generateHTML() {
 '<tr bgcolor="#ffffff">',
   '<td colspan="2" bgcolor="#ffffff" style="background-color:#ffffff;padding:22px 24px 28px;">',
 
-    '<p style="margin:0;font-size:8px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:' + STEEL + ';font-family:' + F + ';">MORE STORIES</p>',
+    '<p style="margin:0;font-size:15px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:' + STEEL + ';font-family:' + F + ';">MORE STORIES</p>',
     '<table width="100%" cellpadding="0" cellspacing="0" border="0">' +
-      '<tr><td colspan="2" height="2" bgcolor="#ffffff" style="height:2px;background-color:#ffffff;font-size:0;line-height:0;padding:0;mso-line-height-rule:exactly;">&nbsp;</td></tr>' +
+      '<tr><td colspan="2" height="8" bgcolor="#ffffff" style="height:8px;background-color:#ffffff;font-size:8px;line-height:8px;padding:0;mso-line-height-rule:exactly;">&nbsp;</td></tr>' +
       '<tr><td width="24" height="1" bgcolor="' + NAVY + '" style="width:24px;height:1px;font-size:1px;line-height:1px;background-color:' + NAVY + ';mso-line-height-rule:exactly;padding:0;">&nbsp;</td>' +
       '<td bgcolor="#ffffff" style="background-color:#ffffff;font-size:0;padding:0;">&nbsp;</td></tr>' +
       '<tr><td colspan="2" height="16" bgcolor="#ffffff" style="height:16px;font-size:16px;line-height:16px;background-color:#ffffff;mso-line-height-rule:exactly;padding:0;">&nbsp;</td></tr>' +
