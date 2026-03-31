@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<!--
   ============================================================
   Newsletter Editor
   Built by: Colette Forbes
@@ -8,7 +7,6 @@
   Date: March 2026
   Description: An automated tool for creating a newsletter.
   ============================================================
--->
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
@@ -663,27 +661,38 @@ function refreshPreview() {
 
 // ── COPY & DOWNLOAD ───────────────────────────────────────────────────────────
 function copyHTML() {
-  var html = generateHTML();
+  var htmlOut = generateHTML();
   var btn = document.getElementById('copyBtn');
+  // Show fallback textarea always — most reliable across all contexts
+  var box = document.getElementById('copyBox');
+  if (!box) {
+    box = document.createElement('textarea');
+    box.id = 'copyBox';
+    box.style.cssText = 'width:100%;height:160px;margin-top:12px;font-size:11px;font-family:monospace;padding:8px;box-sizing:border-box;border:2px solid #86efac;border-radius:6px;background:#0f172a;color:#86efac;resize:vertical;';
+    btn.parentNode.insertBefore(box, btn.nextSibling);
+    var hint = document.createElement('p');
+    hint.id = 'copyHint';
+    hint.style.cssText = 'color:#86efac;font-size:12px;margin:6px 0 0;';
+    hint.textContent = 'Select all the text above (Ctrl+A or Cmd+A) then copy (Ctrl+C or Cmd+C), then paste into Mailchimp.';
+    box.parentNode.insertBefore(hint, box.nextSibling);
+  }
+  box.value = htmlOut;
+  box.style.display = 'block';
+  box.focus();
+  box.select();
+  // Also try clipboard API
   if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(html).then(function() {
-      btn.textContent = '✅ Copied! Now paste into Mailchimp';
+    navigator.clipboard.writeText(htmlOut).then(function() {
+      btn.textContent = '✅ Copied to clipboard!';
       btn.classList.add('ok');
       setTimeout(function(){ btn.textContent = '📋 Copy HTML for Mailchimp'; btn.classList.remove('ok'); }, 3000);
-    });
+    }).catch(function() {});
   } else {
-    // Fallback
-    var ta = document.createElement('textarea');
-    ta.value = html;
-    ta.style.position = 'fixed'; ta.style.opacity = '0';
-    document.body.appendChild(ta);
-    ta.select();
-    document.execCommand('copy');
-    document.body.removeChild(ta);
-    btn.textContent = '✅ Copied!';
-    btn.classList.add('ok');
-    setTimeout(function(){ btn.textContent = '📋 Copy HTML for Mailchimp'; btn.classList.remove('ok'); }, 3000);
+    try { document.execCommand('copy'); } catch(e) {}
   }
+  btn.textContent = '✅ HTML ready — select & copy below';
+  btn.classList.add('ok');
+  setTimeout(function(){ btn.textContent = '📋 Copy HTML for Mailchimp'; btn.classList.remove('ok'); }, 8000);
 }
 
 function downloadHTML() {
@@ -702,3 +711,4 @@ refreshPreview();
 </script>
 </body>
 </html>
+
