@@ -140,13 +140,6 @@ textarea { resize:vertical; min-height:68px; }
   cursor:pointer; transition:background 0.15s;
 }
 .btn-dl:hover { background:rgba(255,255,255,0.18); }
-.btn-pdf {
-  padding:10px 14px; background:rgba(220,38,38,0.25);
-  border:1px solid rgba(220,38,38,0.4);
-  color:#fca5a5; font-size:12px; font-weight:600; border-radius:5px;
-  cursor:pointer; transition:background 0.15s;
-}
-.btn-pdf:hover { background:rgba(220,38,38,0.4); }
 
 /* PREVIEW */
 .preview-panel {
@@ -208,7 +201,6 @@ textarea { resize:vertical; min-height:68px; }
 
     <div class="sidebar-actions">
       <button class="btn-copy" id="copyBtn" onclick="copyHTML()">📋 Copy HTML for Mailchimp</button>
-      <button class="btn-pdf" onclick="printPDF()" title="Save as PDF">🖨 PDF</button>
       <button class="btn-dl" onclick="downloadHTML()" title="Download as .html file">⬇</button>
     </div>
   </div>
@@ -229,25 +221,30 @@ textarea { resize:vertical; min-height:68px; }
 <script>
 // ── DATA ─────────────────────────────────────────────────────────────────────
 var indices = [
-  { label:'SA Equities',        value:0 },
-  { label:'SA Property',        value:0 },
-  { label:'SA Bonds',           value:0 },
-  { label:'SA Cash',            value:0 },
-  { label:'Developed Equities', value:0 },
-  { label:'Emerging Equities',  value:0 },
-  { label:'Global Property',    value:0 },
-  { label:'Global Bonds',       value:0 },
-  { label:'US Cash',            value:0 },
+  { label:'SA Equities',        value:0  },
+  { label:'SA Property',        value:0  },
+  { label:'SA Bonds',           value:0  },
+  { label:'SA Cash',            value:0  },
+  { label:'Developed Equities', value:0  },
+  { label:'Emerging Equities',  value:0  },
+  { label:'Global Property',    value:0  },
+  { label:'Global Bonds',       value:0  },
+  { label:'US Cash',            value:0  },
 ];
 
-// CHANGE 1: Story fields start blank
 var stories = [
-  { page:1, title:'', body:'' },
-  { page:1, title:'', body:'' },
-  { page:1, title:'', body:'' },
-  { page:2, title:'', body:'' },
-  { page:2, title:'', body:'' },
-  { page:2, title:'', body:'' },
+  { page:1, title:'',
+    body:' },
+  { page:1, title:'',
+    body:"" },
+  { page:1, title:"",
+    body:"" },
+  { page:2, title:"",
+    body:"" },
+  { page:2, title:'',
+    body:"" },
+  { page:2, title:"",
+    body:"" },
 ];
 
 // ── BUILD FIELDS ──────────────────────────────────────────────────────────────
@@ -297,9 +294,9 @@ function buildStoryFields() {
       card.innerHTML =
         '<div class="story-card-num">Story ' + (idx+1) + '</div>' +
         '<span class="story-field-label">Headline</span>' +
-        '<input type="text" id="s-title-' + idx + '" value="' + esc(stories[idx].title) + '" placeholder="Enter headline..." />' +
+        '<input type="text" id="s-title-' + idx + '" value="' + esc(stories[idx].title) + '" />' +
         '<span class="story-field-label">Body text</span>' +
-        '<textarea id="s-body-' + idx + '" rows="4" placeholder="Enter story body text...">' + esc(stories[idx].body) + '</textarea>';
+        '<textarea id="s-body-' + idx + '" rows="4">' + esc(stories[idx].body) + '</textarea>';
       c.appendChild(card);
 
       card.querySelector('#s-title-' + idx).addEventListener('input', function() {
@@ -334,19 +331,24 @@ function generateHTML() {
   var NAVY  = '#163B4F';
   var STEEL = '#455b70';
 
-  var LEFT_W  = 195;
-  var RIGHT_W = 485;
+  // ── COLUMN WIDTHS (must add to 680) ────────────────────────────────────────
+  var LEFT_W  = 195;   // navy sidebar
+  var RIGHT_W = 485;   // stories column
+  // Left inner width after 12px padding each side = 171px available for chart
 
-  // ── CHART — CHANGE 2: Static Y-axis from -3 to +3 ────────────────────────
+  // ── CHART ──────────────────────────────────────────────────────────────────
   var BAR_W     = 12;
   var COL_W     = 14;
   var YAXIS_W   = 22;
-  var STATIC_MAX = 3;   // fixed axis range: -3 to +3
-  var BAR_MAX_H = 72;   // total chart height — 36px pos + 36px neg, matches original size
-  var LBL_H     = 18;
+  var BAR_MAX_H = 140;  // tall enough for each integer tick to get ~14-28px
+  var LBL_H     = 28;
 
-  var POS_H = Math.round(BAR_MAX_H / 2);  // 36px for positive half
-  var NEG_H = BAR_MAX_H - POS_H;          // 36px for negative half
+  var values = indices.map(function(x){ return x.value; });
+  var maxPos = Math.max.apply(null, [0].concat(values.filter(function(v){ return v > 0; })));
+  var maxNeg = Math.abs(Math.min.apply(null, [0].concat(values.filter(function(v){ return v < 0; }))));
+  var range  = (maxPos + maxNeg) || 1;
+  var POS_H  = maxPos > 0 ? Math.round((maxPos / range) * BAR_MAX_H) : 6;
+  var NEG_H  = maxNeg > 0 ? Math.round((maxNeg / range) * BAR_MAX_H) : 6;
 
   // White spacer
   function sp(w, h) {
@@ -358,29 +360,45 @@ function generateHTML() {
     if (h <= 0) return '';
     return '<tr><td width="' + w + '" height="' + h + '" bgcolor="' + col + '" style="width:' + w + 'px;height:' + h + 'px;line-height:' + h + 'px;font-size:0;background-color:' + col + ';overflow:hidden;mso-line-height-rule:exactly;">&nbsp;</td></tr>';
   }
-  // Text label
+  // Text label — hardcoded black, Arial, no inheritance
   function tx(w, h, content, fsize, talign) {
     var hpx = Math.max(h, 1);
     return '<tr><td width="' + w + '" height="' + hpx + '" bgcolor="#ffffff" style="width:' + w + 'px;height:' + hpx + 'px;line-height:' + hpx + 'px;font-size:' + fsize + 'px;color:#000000;background-color:#ffffff;text-align:' + (talign||'center') + ';font-family:Arial,Helvetica,sans-serif;white-space:nowrap;overflow:hidden;mso-line-height-rule:exactly;">' + content + '</td></tr>';
   }
 
-  // ── Y-AXIS: static ticks 3, 2, 1, 0, -1, -2, -3 ─────────────────────────
+  // ── Y-AXIS: one label per integer tick ────────────────────────────────────
   var yHTML = '';
-  var tickH = Math.round(POS_H / STATIC_MAX);  // height per tick zone = 70/3 ≈ 23px
 
-  for (var k = STATIC_MAX; k >= 1; k--) {
-    var lh = Math.min(10, tickH);
-    var sh = tickH - lh;
-    if (sh > 0) yHTML += sp(YAXIS_W, sh);
-    yHTML += tx(YAXIS_W, lh, k, 7, 'right');
+  if (maxPos > 0) {
+    for (var k = maxPos; k >= 1; k--) {
+      var zt  = Math.round(POS_H * (maxPos - k)     / maxPos);
+      var zb  = Math.round(POS_H * (maxPos - k + 1) / maxPos);
+      var zh  = zb - zt;  // zone height for this integer
+      var lh  = Math.min(10, zh);
+      var sh  = zh - lh;
+      if (sh > 0) yHTML += sp(YAXIS_W, sh);  // space above, pushing label to bottom
+      yHTML += tx(YAXIS_W, lh, k, 7, 'right');
+    }
+  } else {
+    yHTML += sp(YAXIS_W, POS_H);
   }
-  yHTML += tx(YAXIS_W, 8, '0', 7, 'right');
-  for (var n = 1; n <= STATIC_MAX; n++) {
-    var lh2 = Math.min(10, tickH);
-    var sh2 = tickH - lh2;
-    yHTML += tx(YAXIS_W, lh2, '-' + n, 7, 'right');
-    if (sh2 > 0) yHTML += sp(YAXIS_W, sh2);
+
+  yHTML += tx(YAXIS_W, 8, '0', 7, 'right');  // 0 label at zero line
+
+  if (maxNeg > 0) {
+    for (var n = 1; n <= maxNeg; n++) {
+      var zt2 = Math.round(NEG_H * (n - 1) / maxNeg);
+      var zb2 = Math.round(NEG_H * n       / maxNeg);
+      var zh2 = zb2 - zt2;
+      var lh2 = Math.min(10, zh2);
+      var sh2 = zh2 - lh2;
+      yHTML += tx(YAXIS_W, lh2, '-' + n, 7, 'right');  // label at top of zone
+      if (sh2 > 0) yHTML += sp(YAXIS_W, sh2);
+    }
+  } else {
+    yHTML += sp(YAXIS_W, NEG_H);
   }
+
   yHTML += sp(YAXIS_W, LBL_H);
 
   var yAxisCol =
@@ -390,16 +408,13 @@ function generateHTML() {
       '</table>' +
     '</td>';
 
-  // ── BAR COLUMNS — scale within static -3/+3 range ────────────────────────
+  // ── BAR COLUMNS ──────────────────────────────────────────────────────────
   var barCols = yAxisCol;
 
   for (var i = 0; i < indices.length; i++) {
     var v     = indices[i].value;
     var isPos = v >= 0;
-    // Scale bar height relative to the static max of 3
-    var barPx = v === 0 ? 0 : Math.max(2, Math.round((Math.abs(v) / STATIC_MAX) * POS_H));
-    barPx = Math.min(barPx, isPos ? POS_H : NEG_H);  // clamp to half-height
-
+    var barPx = v === 0 ? 0 : Math.max(3, Math.round((Math.abs(v) / range) * BAR_MAX_H));
     var lbl   = indices[i].label
       .replace('Equities','Eq.').replace('Property','Prop.')
       .replace('Developed','Dev.').replace('Emerging','Em.').replace('Global','Gl.');
@@ -408,7 +423,7 @@ function generateHTML() {
 
     var posSpacer = Math.max(0, POS_H - (isPos  ? barPx : 0));
     var negSpacer = Math.max(0, NEG_H - (!isPos ? barPx : 0));
-    var zeroColor = isPos ? '#2e7d32' : NAVY;
+    var zeroColor = isPos ? '#2e7d32' : NAVY;  // zero line matches the bar colour
 
     barCols +=
       '<td width="' + COL_W + '" bgcolor="#ffffff" style="width:' + COL_W + 'px;background-color:#ffffff;padding:0 1px;vertical-align:top;">' +
@@ -428,6 +443,11 @@ function generateHTML() {
     '<table width="' + CHART_W + '" cellpadding="0" cellspacing="0" border="0" bgcolor="#ffffff" style="width:' + CHART_W + 'px;background-color:#ffffff;">' +
       '<tr valign="top">' + barCols + '</tr>' +
     '</table>';
+
+
+
+
+
 
   // ── PAGE 1 STORIES ─────────────────────────────────────────────────────────
   var p1 = stories.filter(function(s){ return s.page === 1; });
@@ -476,6 +496,7 @@ function generateHTML() {
       '<tr bgcolor="#ffffff"><td colspan="3" bgcolor="#ffffff" style="background-color:#ffffff;padding:14px 0 14px;border:0;">' + storyCard(p2[m]) + '</td></tr>';
   }
 
+  // More Stories: inner width = 680 - (24+24) padding = 632px. Two cols + 20px gap.
   var p2Col1W = 306;
   var p2Col2W = 306;
 
@@ -490,6 +511,7 @@ function generateHTML() {
 '</head>',
 '<body style="margin:0;padding:0;background-color:#ffffff;">',
 
+// Outer wrapper
 '<table width="680" cellpadding="0" cellspacing="0" border="0" align="center" bgcolor="#ffffff" style="background-color:#ffffff;width:680px;border-collapse:collapse;">',
 
 // ── HEADER ──
@@ -507,9 +529,10 @@ function generateHTML() {
   '</td>',
 '</tr>',
 
+// Header border
 '<tr><td colspan="2" height="3" bgcolor="#ffffff" style="height:3px;background-color:#ffffff;font-size:0;line-height:0;padding:0;">&nbsp;</td></tr>',
 
-// ── HERO IMAGE ──
+// ── HERO IMAGE — spans full 680px ──
 '<tr bgcolor="#ffffff">',
   '<td colspan="2" bgcolor="' + NAVY + '" style="background-color:' + NAVY + ';padding:0;font-size:0;line-height:0;border:0;">',
     '<img src="https://mcusercontent.com/f4fec8259cbd66fbf9a376f71/images/28fab494-5401-2cd6-4ab3-01b8cc76daa6.jpg" alt="" width="680" height="auto" style="display:block;width:680px;max-width:680px;height:auto;border:0;"/>',
@@ -519,27 +542,40 @@ function generateHTML() {
 // ── TWO-COLUMN BODY ──
 '<tr valign="top" bgcolor="#ffffff">',
 
+  // LEFT COL — full height navy sidebar
   '<td width="' + LEFT_W + '" valign="top" bgcolor="' + NAVY + '" style="width:' + LEFT_W + 'px;background-color:' + NAVY + ';padding:20px 12px 24px;vertical-align:top;">',
-    '<table width="171" cellpadding="0" cellspacing="0" border="0" bgcolor="' + NAVY + '" style="width:171px;background-color:' + NAVY + ';">',
-      '<tr><td bgcolor="' + NAVY + '" align="center" style="background-color:' + NAVY + ';padding:0 0 4px;font-size:8px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:#aabfd1;font-family:' + F + ';">MARKETS AT A GLANCE</td></tr>',
-      '<tr><td bgcolor="' + NAVY + '" align="center" style="background-color:' + NAVY + ';padding:0 0 12px;">',
-        '<table width="24" cellpadding="0" cellspacing="0" border="0"><tr><td width="24" height="2" bgcolor="' + STEEL + '" style="width:24px;height:2px;background-color:' + STEEL + ';font-size:0;padding:0;">&nbsp;</td></tr></table>',
-      '</td></tr>',
-      '<tr><td bgcolor="#ffffff" style="background-color:#ffffff;padding:8px 6px 4px;">',
-        '<p style="margin:0 0 6px;font-size:7px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;color:' + STEEL + ';text-align:center;font-family:' + F + ';">Main Market Indices</p>',
-        chartTable,
-      '</td></tr>',
-      '<tr><td height="12" bgcolor="' + NAVY + '" style="height:12px;background-color:' + NAVY + ';font-size:1px;line-height:12px;mso-line-height-rule:exactly;padding:0;">&nbsp;</td></tr>',
-      '<tr><td bgcolor="' + NAVY + '" align="center" style="background-color:' + NAVY + ';padding:0 0 8px;font-size:11px;color:#aabfd1;font-family:' + F + ';text-align:center;">Download the full report</td></tr>',
-      '<tr><td bgcolor="' + NAVY + '" align="center" style="background-color:' + NAVY + ';padding:0;">',
-        '<table cellpadding="0" cellspacing="0" border="0"><tr><td bgcolor="' + STEEL + '" style="background-color:' + STEEL + ';">',
-          '<a href="https://workdrive.zohoexternal.com/external/091d1c286e4f1b9a89a150666ab4eabc7e62b7f0fd0094ca01910407374f9283" target="_blank" style="display:inline-block;padding:8px 14px;font-size:11px;font-weight:bold;color:#ffffff;text-decoration:none;font-family:' + F + ';white-space:nowrap;">VIEW REPORT &#8594;</a>',
-        '</td></tr></table>',
-      '</td></tr>',
-    '</table>',
+
+
+        // Single table — no sibling tables = no Outlook white paragraph breaks
+        '<table width="171" cellpadding="0" cellspacing="0" border="0" bgcolor="' + NAVY + '" style="width:171px;background-color:' + NAVY + ';">',
+          // Row 1: heading
+          '<tr><td bgcolor="' + NAVY + '" align="center" style="background-color:' + NAVY + ';padding:0 0 4px;font-size:8px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:#aabfd1;font-family:' + F + ';">MARKETS AT A GLANCE</td></tr>',
+          // Row 2: steel underline bar
+          '<tr><td bgcolor="' + NAVY + '" align="center" style="background-color:' + NAVY + ';padding:0 0 12px;">',
+            '<table width="24" cellpadding="0" cellspacing="0" border="0"><tr><td width="24" height="2" bgcolor="' + STEEL + '" style="width:24px;height:2px;background-color:' + STEEL + ';font-size:0;padding:0;">&nbsp;</td></tr></table>',
+          '</td></tr>',
+          // Row 3: white chart card
+          '<tr><td bgcolor="#ffffff" style="background-color:#ffffff;padding:8px 6px 4px;">',
+            '<p style="margin:0 0 6px;font-size:7px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;color:' + STEEL + ';text-align:center;font-family:' + F + ';">Main Market Indices</p>',
+            chartTable,
+          '</td></tr>',
+          // Row 4: spacer
+          '<tr><td height="12" bgcolor="' + NAVY + '" style="height:12px;background-color:' + NAVY + ';font-size:1px;line-height:12px;mso-line-height-rule:exactly;padding:0;">&nbsp;</td></tr>',
+          // Row 5: download text
+          '<tr><td bgcolor="' + NAVY + '" align="center" style="background-color:' + NAVY + ';padding:0 0 8px;font-size:11px;color:#aabfd1;font-family:' + F + ';text-align:center;">Download the full report</td></tr>',
+          // Row 6: button
+          '<tr><td bgcolor="' + NAVY + '" align="center" style="background-color:' + NAVY + ';padding:0;">',
+            '<table cellpadding="0" cellspacing="0" border="0"><tr><td bgcolor="' + STEEL + '" style="background-color:' + STEEL + ';">',
+              '<a href="https://workdrive.zohoexternal.com/external/091d1c286e4f1b9a89a150666ab4eabc7e62b7f0fd0094ca01910407374f9283" target="_blank" style="display:inline-block;padding:8px 14px;font-size:11px;font-weight:bold;color:#ffffff;text-decoration:none;font-family:' + F + ';white-space:nowrap;">VIEW REPORT &#8594;</a>',
+            '</td></tr></table>',
+          '</td></tr>',
+        '</table>',
+
   '</td>',
 
+  // RIGHT COL — stories, fills remaining width
   '<td width="' + RIGHT_W + '" valign="top" bgcolor="#ffffff" style="width:' + RIGHT_W + 'px;background-color:#ffffff;padding:20px 24px 24px;vertical-align:top;">',
+
     '<p style="margin:0;font-size:15px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:' + STEEL + ';font-family:' + F + ';">TOP STORIES THIS WEEK</p>',
     '<table width="100%" cellpadding="0" cellspacing="0" border="0">' +
       '<tr><td colspan="2" height="8" bgcolor="#ffffff" style="height:8px;background-color:#ffffff;font-size:8px;line-height:8px;padding:0;mso-line-height-rule:exactly;">&nbsp;</td></tr>' +
@@ -548,6 +584,7 @@ function generateHTML() {
       '<tr><td colspan="2" height="14" bgcolor="#ffffff" style="height:14px;font-size:14px;line-height:14px;background-color:#ffffff;mso-line-height-rule:exactly;padding:0;">&nbsp;</td></tr>' +
     '</table>',
     '<table width="100%" cellpadding="0" cellspacing="0" border="0">' + p1Rows + '</table>',
+
   '</td>',
 '</tr>',
 
@@ -557,6 +594,7 @@ function generateHTML() {
 // ── MORE STORIES ──
 '<tr bgcolor="#ffffff">',
   '<td colspan="2" bgcolor="#ffffff" style="background-color:#ffffff;padding:22px 24px 16px;">',
+
     '<p style="margin:0;font-size:15px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:' + STEEL + ';font-family:' + F + ';">MORE STORIES</p>',
     '<table width="100%" cellpadding="0" cellspacing="0" border="0">' +
       '<tr><td colspan="2" height="8" bgcolor="#ffffff" style="height:8px;background-color:#ffffff;font-size:8px;line-height:8px;padding:0;mso-line-height-rule:exactly;">&nbsp;</td></tr>' +
@@ -564,6 +602,7 @@ function generateHTML() {
       '<td bgcolor="#ffffff" style="background-color:#ffffff;font-size:0;padding:0;">&nbsp;</td></tr>' +
       '<tr><td colspan="2" height="16" bgcolor="#ffffff" style="height:16px;font-size:16px;line-height:16px;background-color:#ffffff;mso-line-height-rule:exactly;padding:0;">&nbsp;</td></tr>' +
     '</table>',
+
     '<table width="100%" cellpadding="0" cellspacing="0" border="0">',
       '<tr valign="top" bgcolor="#ffffff">',
         '<td width="' + p2Col1W + '" valign="top" bgcolor="#ffffff" style="background-color:#ffffff;width:' + p2Col1W + 'px;vertical-align:top;">' + (p2.length > 0 ? storyCard(p2[0]) : '') + '</td>',
@@ -594,6 +633,7 @@ function generateHTML() {
 ].join('\n');
 }
 
+
 var refreshTimer = null;
 function scheduleRefresh() {
   clearTimeout(refreshTimer);
@@ -611,7 +651,7 @@ function refreshPreview() {
   }
 }
 
-// ── COPY ─────────────────────────────────────────────────────────────────────
+// ── COPY & DOWNLOAD ───────────────────────────────────────────────────────────
 function copyHTML() {
   var htmlOut = generateHTML();
   var btn = document.getElementById('copyBtn');
@@ -625,7 +665,9 @@ function copyHTML() {
   ta.focus();
   ta.select();
   var success = false;
-  try { success = document.execCommand('copy'); } catch(e) {}
+  try {
+    success = document.execCommand('copy');
+  } catch(e) {}
   document.body.removeChild(ta);
   if (success) {
     btn.textContent = '✅ Copied! Now paste into Mailchimp';
@@ -644,7 +686,6 @@ function copyHTML() {
   }
 }
 
-// ── DOWNLOAD ─────────────────────────────────────────────────────────────────
 function downloadHTML() {
   var html = generateHTML();
   var blob = new Blob([html], {type:'text/html'});
@@ -654,32 +695,18 @@ function downloadHTML() {
   a.click();
 }
 
-// CHANGE 3: PDF — opens the generated newsletter in a new window and triggers print dialog
-function printPDF() {
-  var html = generateHTML();
-  // Inject print styles so only the newsletter content prints, no browser chrome
-  var printHtml = html.replace('</head>', '<style>@media print{body{margin:0;padding:0;}table{page-break-inside:avoid;}}</style>\n<script>window.onload=function(){window.print();window.onafterprint=function(){window.close();};};<\/script>\n</head>');
-  var win = window.open('', '_blank');
-  if (win) {
-    win.document.open();
-    win.document.write(printHtml);
-    win.document.close();
-  } else {
-    alert('Pop-up blocked. Please allow pop-ups for this page and try again.');
-  }
-}
-
 // ── INIT ──────────────────────────────────────────────────────────────────────
 buildIndexFields();
 buildStoryFields();
 refreshPreview();
 
-/* Newsletter Editor
-   Built by: Colette Forbes
-   Organisation: Sequoia Investment Solutions (FSP No.: 49393)
-   Version: 1.1
-   Date: March 2026
-   Description: An automated tool for creating a newsletter. */
+ /* Newsletter Editor
+  Built by: Colette Forbes
+  Organisation: Sequoia Investment Solutions (FSP No.: 49393)
+  Version: 1.0
+  Date: March 2026
+  Description: An automated tool for creating a newsletter. */
+
 </script>
 </body>
 </html>
