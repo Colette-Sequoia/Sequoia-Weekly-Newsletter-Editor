@@ -158,6 +158,14 @@ textarea { resize:vertical; min-height:68px; }
   width:680px; min-height:900px; border:none; background:#fff;
   box-shadow:0 4px 24px rgba(0,0,0,0.15); border-radius:2px;
 }
+
+@media print {
+  .how-to-use, .sidebar, .preview-bar { display:none !important; }
+  .app { display:block !important; height:auto !important; }
+  .preview-panel { overflow:visible !important; }
+  .preview-scroll { padding:0 !important; }
+  .preview-scroll iframe { box-shadow:none !important; }
+}
 </style>
 </head>
 <body>
@@ -201,7 +209,8 @@ textarea { resize:vertical; min-height:68px; }
 
     <div class="sidebar-actions">
       <button class="btn-copy" id="copyBtn" onclick="copyHTML()">📋 Copy HTML for Mailchimp</button>
-      <button class="btn-dl" onclick="downloadHTML()" title="Download as .html file">⬇</button>
+      <button class="btn-dl" onclick="downloadHTML()" title="Download as .html file">⬇ HTML</button>
+      <button class="btn-dl" onclick="downloadPDF()" title="Download as PDF">📄 PDF</button>
     </div>
   </div>
 
@@ -233,18 +242,12 @@ var indices = [
 ];
 
 var stories = [
-  { page:1, title:'Middle East Conflict Triggers Oil Shock and Market Turmoil',
-    body:'Escalating geopolitical tensions have pushed Brent crude oil prices above $100 a barrel, sparking significant volatility and a flight from risk in global markets. The conflict has rattled investors, wiping out over R2 trillion on the JSE due to fears of stagflation and prolonged economic uncertainty. For oil-importing countries like South Africa, the surge threatens to cause substantial fuel price increases and accelerate consumer price inflation.' },
-  { page:1, title:'SA Economy Posts Fastest Growth in Three Years',
-    body:"South Africa's economy expanded by 1.1% in 2025, the quickest pace of growth seen in three years. The encouraging GDP figure was driven by strong performances in agriculture, finance, and trade sectors. This positive data offers a sign of recovery and raises hopes for more sustained economic momentum moving forward." },
-  { page:1, title:"Oil Price Surge Clouds South Africa's Interest Rate Path",
-    body:"The sharp rise in global oil prices is complicating the South African Reserve Bank's monetary policy, making previously expected interest rate cuts less certain. Economists suggest the SARB may now adopt a wait-and-see approach, pausing any rate movements amid the heightened global uncertainty." },
-  { page:2, title:"Absa's Executive Pay in Spotlight with R98.5m Buyout Award",
-    body:"Absa Group is facing scrutiny over a R98.5 million buyout award made to a new executive who joined from a competitor. The payment contributed to a total compensation package exceeding R148 million for 2025, raising questions about corporate governance and remuneration practices within South Africa's banking sector." },
-  { page:2, title:'African Bank CEO Kennedy Bungane Resigns Abruptly',
-    body:"The sudden resignation of CEO Kennedy Bungane has created leadership uncertainty at African Bank. The bank has named an interim CEO while beginning its search for a permanent successor. Bungane's unexpected departure occurs at a pivotal moment as the bank continues to implement its turnaround strategy." },
-  { page:2, title:"Gauteng's R179bn Budget Strained by E-toll Debt",
-    body:"The Gauteng provincial government's finances are under considerable pressure after absorbing R20 billion in e-toll debt. This significant obligation is straining the province's R179 billion budget and limiting its capacity to fund other essential public services." },
+  { page:1, title:'', body:'' },
+  { page:1, title:'', body:'' },
+  { page:1, title:'', body:'' },
+  { page:2, title:'', body:'' },
+  { page:2, title:'', body:'' },
+  { page:2, title:'', body:'' },
 ];
 
 // ── BUILD FIELDS ──────────────────────────────────────────────────────────────
@@ -337,8 +340,8 @@ function generateHTML() {
   // Left inner width after 12px padding each side = 171px available for chart
 
   // ── CHART ──────────────────────────────────────────────────────────────────
-  var BAR_W     = 12;
-  var COL_W     = 14;
+  var BAR_W     = 14;
+  var COL_W     = 16;
   var YAXIS_W   = 22;
   var BAR_MAX_H = 140;  // tall enough for each integer tick to get ~14-28px
   var LBL_H     = 28;
@@ -543,7 +546,7 @@ function generateHTML() {
 '<tr valign="top" bgcolor="#ffffff">',
 
   // LEFT COL — full height navy sidebar
-  '<td width="' + LEFT_W + '" valign="top" bgcolor="' + NAVY + '" style="width:' + LEFT_W + 'px;background-color:' + NAVY + ';padding:20px 12px 24px;vertical-align:top;">',
+  '<td width="' + LEFT_W + '" valign="top" bgcolor="' + NAVY + '" style="width:' + LEFT_W + 'px;background-color:' + NAVY + ';padding:20px 8px 24px 16px;vertical-align:top;">',
 
 
         // Single table — no sibling tables = no Outlook white paragraph breaks
@@ -555,7 +558,7 @@ function generateHTML() {
             '<table width="24" cellpadding="0" cellspacing="0" border="0"><tr><td width="24" height="2" bgcolor="' + STEEL + '" style="width:24px;height:2px;background-color:' + STEEL + ';font-size:0;padding:0;">&nbsp;</td></tr></table>',
           '</td></tr>',
           // Row 3: white chart card
-          '<tr><td bgcolor="#ffffff" style="background-color:#ffffff;padding:8px 6px 4px;">',
+          '<tr><td bgcolor="#ffffff" align="center" style="background-color:#ffffff;padding:8px 6px 4px;text-align:center;">',
             '<p style="margin:0 0 6px;font-size:7px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;color:' + STEEL + ';text-align:center;font-family:' + F + ';">Main Market Indices</p>',
             chartTable,
           '</td></tr>',
@@ -693,6 +696,10 @@ function downloadHTML() {
   a.href = URL.createObjectURL(blob);
   a.download = 'sequoia_market_review.html';
   a.click();
+}
+
+function downloadPDF() {
+  window.print();
 }
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
