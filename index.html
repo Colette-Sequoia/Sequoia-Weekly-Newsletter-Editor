@@ -342,11 +342,11 @@ function generateHTML() {
   var COL_W     = 14;
   var YAXIS_W   = 22;
   var STATIC_MAX = 3;   // fixed axis range: -3 to +3
-  var BAR_MAX_H = 140;
-  var LBL_H     = 28;
+  var BAR_MAX_H = 72;   // total chart height — 36px pos + 36px neg, matches original size
+  var LBL_H     = 18;
 
-  var POS_H = Math.round(BAR_MAX_H * STATIC_MAX / (STATIC_MAX * 2));  // 70px for positive half
-  var NEG_H = BAR_MAX_H - POS_H;                                        // 70px for negative half
+  var POS_H = Math.round(BAR_MAX_H / 2);  // 36px for positive half
+  var NEG_H = BAR_MAX_H - POS_H;          // 36px for negative half
 
   // White spacer
   function sp(w, h) {
