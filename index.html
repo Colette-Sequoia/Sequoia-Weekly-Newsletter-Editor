@@ -704,7 +704,12 @@ function downloadPDF() {
     margin: 0,
     filename: 'sequoia_market_review.pdf',
     image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2 },
+    html2canvas: { 
+      scale: 2,
+      useCORS: true,
+      allowTaint: true,
+      logging: false
+    },
     jsPDF: { unit: 'px', format: [680, 900], orientation: 'portrait' }
   };
   
