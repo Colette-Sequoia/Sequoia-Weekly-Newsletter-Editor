@@ -347,8 +347,8 @@ function generateHTML() {
   var LBL_H     = 28;
 
   var values = indices.map(function(x){ return x.value; });
-  var maxPos = Math.max.apply(null, [0].concat(values.filter(function(v){ return v > 0; })));
-  var maxNeg = Math.abs(Math.min.apply(null, [0].concat(values.filter(function(v){ return v < 0; }))));
+  var maxPos = 3;  // Static y-axis maximum
+  var maxNeg = 3;  // Static y-axis minimum
   var range  = (maxPos + maxNeg) || 1;
   var POS_H  = maxPos > 0 ? Math.round((maxPos / range) * BAR_MAX_H) : 6;
   var NEG_H  = maxNeg > 0 ? Math.round((maxNeg / range) * BAR_MAX_H) : 6;
