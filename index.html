@@ -699,7 +699,10 @@ function downloadHTML() {
 }
 
 function downloadPDF() {
-  var html = generateHTML();
+  var frame = document.getElementById('previewFrame');
+  var frameDoc = frame.contentDocument || frame.contentWindow.document;
+  var element = frameDoc.body;
+  
   var opt = {
     margin: 0,
     filename: 'sequoia_market_review.pdf',
@@ -708,15 +711,12 @@ function downloadPDF() {
       scale: 2,
       useCORS: true,
       allowTaint: true,
-      logging: false
+      logging: false,
+      scrollY: 0,
+      scrollX: 0
     },
-    jsPDF: { unit: 'px', format: [680, 900], orientation: 'portrait' }
+    jsPDF: { unit: 'px', format: [680, 1200], orientation: 'portrait' }
   };
-  
-  var element = document.createElement('div');
-  element.innerHTML = html;
-  element.style.width = '680px';
-  element.style.background = '#ffffff';
   
   html2pdf().set(opt).from(element).save();
 }
