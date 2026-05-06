@@ -699,26 +699,19 @@ function downloadHTML() {
 }
 
 function downloadPDF() {
-  var frame = document.getElementById('previewFrame');
-  var frameDoc = frame.contentDocument || frame.contentWindow.document;
-  var element = frameDoc.body;
+  var html = generateHTML();
+  var printWindow = window.open('', '_blank');
+  printWindow.document.open();
+  printWindow.document.write(html);
+  printWindow.document.close();
   
-  var opt = {
-    margin: 0,
-    filename: 'sequoia_market_review.pdf',
-    image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { 
-      scale: 2,
-      useCORS: true,
-      allowTaint: true,
-      logging: false,
-      scrollY: 0,
-      scrollX: 0
-    },
-    jsPDF: { unit: 'px', format: [680, 1200], orientation: 'portrait' }
+  // Wait for images to load before printing
+  printWindow.onload = function() {
+    setTimeout(function() {
+      printWindow.print();
+      printWindow.close();
+    }, 500);
   };
-  
-  html2pdf().set(opt).from(element).save();
 }
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
